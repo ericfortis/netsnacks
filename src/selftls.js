@@ -14,7 +14,6 @@ DESCRIPTION
 
 OPTIONS
   --alt <domains>   Comma-separated Subject Alternative Names (SANs)
-  -h, --help
 
 EXAMPLES
   netsnacks selftls localhost
@@ -54,34 +53,36 @@ async function main() {
 	if (existsSync(keyFile)) throw new Error(`Found existing key: ${keyFile}`)
 	if (existsSync(certFile)) throw new Error(`Found existing cert: ${certFile}`)
 
-	await selftls(domain, altNames, keyFile, certFile)
+	await selftls(keyFile, certFile, config(domain, altNames))
 }
 
-async function selftls(domain, altNames, keyFile, certFile) {
-	const config = generateConfig(domain, altNames)
+async function selftls(keyFile, certFile, conf) {
 	try {
 		await runSilently('openssl', [
-			'req', '-newkey', 'rsa:2048',
+			'req',
+			'-newkey', 'ec',
+			'-pkeyopt', 'ec_paramgen_curve:P-256',
 			'-x509',
-			'-nodes',
+			'-nodes', // No DES. Don't encrypt private key
 			'-config', '/dev/stdin',
 			'-keyout', keyFile,
 			'-out', certFile,
 			'-days', 365 * 3,
-		], config)
+		], conf)
 	}
 	catch (err) {
 		throw new Error(err.message)
 	}
 }
 
-function generateConfig(domain, alt) {
+function config(domain, alt) {
 	let iDns = 0
 	let iIp = 0
 	const altNames = [domain, ...alt].map(name =>
 		isIPv4(name) || isIPv6(name)
 			? `IP.${++iIp} = ${name}`
-			: `DNS.${++iDns} = ${name}`).join('\n')
+			: `DNS.${++iDns} = ${name}`
+	).join('\n')
 
 	return `
 [req]
