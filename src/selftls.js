@@ -14,7 +14,7 @@ DESCRIPTION
 
 OPTIONS
   --alt <domains>   Comma-separated Subject Alternative Names (SANs)
-  --output-dir <dir> Output directory for files (defaults to current working directory)
+  --outdir <dir> Output directory for files (defaults to current working directory)
 
 EXAMPLES
   netsnacks selftls localhost
@@ -32,7 +32,7 @@ INSTALL ON MACOS
 export default async function main() {
 	const { values, positionals } = parseOptions({
 		alt: { type: 'string' },
-		'output-dir': { type: 'string' },
+		outdir: { type: 'string' },
 		help: { short: 'h', type: 'boolean' },
 	})
 
@@ -42,7 +42,7 @@ export default async function main() {
 	}
 
 	const domain = positionals[0]
-	const dir = values['output-dir'] || '.'
+	const dir = values.outdir || '.'
 	const keyFile = join(dir, `${domain}.key`)
 	const certFile = join(dir, `${domain}.cert`)
 
