@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+import { join } from 'node:path'
 import { parseArgs } from 'node:util'
 import { existsSync } from 'node:fs'
 import { isIPv4, isIPv6 } from 'node:net'
@@ -14,16 +15,18 @@ DESCRIPTION
 
 OPTIONS
   --alt <domains>   Comma-separated Subject Alternative Names (SANs)
+  --output-dir <dir> Output directory for files (defaults to current working directory)
 
 EXAMPLES
   netsnacks selftls localhost
   netsnacks selftls localhost --alt=127.0.0.1
-  netsnacks selftls foo.example.com --alt=bar.example.com,*.foo.example.com,192.0.2.3
+  netsnacks selftls foo.example.com --alt=bar.example.com,*.baz.example.com,192.0.2.3
  
-INSTALL
+INSTALL ON MACOS
   - Open "Keychain Access" App
-  - Login section. Drop the generated *.cert
-  - Double-click that newly added cert row, and expand "Trust" > SSL > Always Trust
+  - Drop the generated *.cert file onto the "login" keychains section
+  - Double-click that newly added cert item
+  - Expand "Trust" > SSL > Select "Always Trust"
 `.trim()
 
 
@@ -31,6 +34,7 @@ async function main() {
 	const { values, positionals } = parseArgs({
 		options: {
 			alt: { type: 'string' },
+			'output-dir': { type: 'string' },
 			help: { short: 'h', type: 'boolean' },
 		},
 		allowPositionals: true
@@ -42,21 +46,24 @@ async function main() {
 	}
 
 	const domain = positionals[0]
-	const keyFile = `${domain}.key`
-	const certFile = `${domain}.cert`
+	const dir = values['output-dir'] || '.'
+	const keyFile = join(dir, `${domain}.key`)
+	const certFile = join(dir, `${domain}.cert`)
+
 	const altNames = values.alt
 		? values.alt.split(',').map(s => s.trim()).filter(Boolean)
 		: []
 
 	if (!domain) throw new Error('Missing domain. See: netsnacks selftls --help')
-	if (positionals.length > 1) throw new Error('Too many CNs')
+	if (positionals.length > 1) throw new Error('Too many domains')
 	if (existsSync(keyFile)) throw new Error(`Found existing key: ${keyFile}`)
 	if (existsSync(certFile)) throw new Error(`Found existing cert: ${certFile}`)
 
-	await selftls(keyFile, certFile, config(domain, altNames))
+	await selftls({ keyFile, certFile, domain, altNames })
 }
 
-async function selftls(keyFile, certFile, conf) {
+export async function selftls({ keyFile, certFile, domain, altNames }) {
+	const conf = config(domain, altNames)
 	try {
 		await runSilently('openssl', [
 			'req',
@@ -101,7 +108,8 @@ ${altNames}
 `.trim()
 }
 
-main().catch(err => {
-	console.error(err.message)
-	process.exit(1)
-})
+if (import.meta.main)
+	main().catch(err => {
+		console.error(err.message)
+		process.exit(1)
+	})

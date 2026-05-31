@@ -40,7 +40,7 @@ async function main() {
 		console.table(output)
 }
 
-async function certperiod(domain) {
+export async function certperiod(domain) {
 	const rawCert = await runSilently('openssl', [
 		's_client',
 		'-showcerts',
@@ -57,7 +57,7 @@ async function certperiod(domain) {
 	return parseDates(cert.stdout)
 }
 
-function parseDates(cert) {
+export function parseDates(cert) {
 	const { notBefore, notAfter } = parseEnv(cert)
 	const now = new Date()
 	const dateBefore = new Date(notBefore)
@@ -75,7 +75,8 @@ function toDays(ms) {
 	return Math.round(ms / (24 * 60 * 60 * 1000))
 }
 
-main().catch(err => {
-	console.error(err.message)
-	process.exit(1)
-})
+if (import.meta.main)
+	main().catch(err => {
+		console.error(err.message)
+		process.exit(1)
+	})

@@ -5,6 +5,7 @@ import { homedir } from 'node:os'
 import { parseArgs } from 'node:util'
 import { runSilently } from './utils/subprocess.js'
 
+const ROUNDS = 32
 
 const HELP = `
 SYNOPSIS
@@ -36,7 +37,7 @@ async function main() {
 			addr: { short: 'a', type: 'string' },
 			user: { short: 'u', type: 'string', default: process.env.USER || '' },
 			port: { short: 'p', type: 'string', default: '22' },
-			rounds: { short: 'r', type: 'string', default: '32' },
+			rounds: { short: 'r', type: 'string', default: String(ROUNDS) },
 			passphrase: { short: 'P', type: 'string', default: '' },
 			help: { short: 'h', type: 'boolean' },
 		}
@@ -51,25 +52,25 @@ async function main() {
 	if (!host) throw new Error('--host is required')
 	if (!addr) throw new Error('--addr is required')
 
-	const keyPath = join(homedir(), '.ssh', host, 'id_ed25519')
+	const outPath = join(homedir(), '.ssh', host, 'id_ed25519')
 	const sshConfig = join(homedir(), '.ssh', 'config')
 
 	try {
-		await sshkeygen(keyPath, rounds, passphrase)
-		await fs.appendFile(sshConfig, formatHostEntry(keyPath, host, addr, port, user), { mode: 0o600 })
+		await sshkeygen({ outPath, rounds, passphrase })
+		await fs.appendFile(sshConfig, formatHostEntry(outPath, host, addr, port, user), { mode: 0o600 })
 	}
 	catch (err) {
 		throw new Error(err.message)
 	}
 }
 
-async function sshkeygen(keyPath, rounds, new_passphrase) {
-	await fs.mkdir(dirname(keyPath), { recursive: true, mode: 0o700 })
+export async function sshkeygen({ outPath, rounds = ROUNDS, passphrase = '' }) {
+	await fs.mkdir(dirname(outPath), { recursive: true, mode: 0o700 })
 	await runSilently('ssh-keygen', [
 		'-t', 'ed25519',
-		'-f', keyPath,
+		'-f', outPath,
 		'-a', rounds,
-		new_passphrase ? ['-N', new_passphrase] : [],
+		passphrase ? ['-N', passphrase] : [],
 	].flat())
 }
 
@@ -84,7 +85,8 @@ IdentityFile ${keyPath}
 }
 
 
-main().catch(err => {
-	console.error(err.message)
-	process.exit(1)
-})
+if (import.meta.main)
+	main().catch(err => {
+		console.error(err.message)
+		process.exit(1)
+	})

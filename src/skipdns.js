@@ -1,7 +1,11 @@
 #!/usr/bin/env node
+import { request } from 'node:https'
 import { parseArgs } from 'node:util'
-import { runSilently } from './utils/subprocess.js'
 
+const PORT = 443
+const TIMEOUT_SEC = 2
+const FAMILY = 4
+const METHOD = 'HEAD'
 
 const HELP = `
 SYNOPSIS
@@ -11,8 +15,10 @@ DESCRIPTION
   Sends a HEAD request to a TLS domain using a specific IP address.
   
 OPTIONS
-	-t, --timeout <seconds>  Default: 2
-	-p, --port <num>         Default: 443
+	-t, --timeout <seconds>  Default: ${TIMEOUT_SEC}
+	-p, --port <num>         Default: ${PORT}
+	-m, --method <string>    Default: ${METHOD}
+	-f, --family <num>       Default: ${FAMILY}
 
 EXAMPLE
   netsnacks skipdns example.com 192.0.2.2
@@ -22,9 +28,11 @@ EXAMPLE
 async function main() {
 	const { values, positionals } = parseArgs({
 		options: {
+			timeout: { short: 't', default: String(TIMEOUT_SEC) },
+			family: { short: 'f', default: String(FAMILY) },
+			port: { short: 'p', default: String(PORT) },
+			method: { short: 'm', default: METHOD },
 			help: { short: 'h', type: 'boolean' },
-			timeout: { short: 't', default: '2' },
-			port: { short: 'p', default: '443' },
 		},
 		allowPositionals: true
 	})
@@ -38,21 +46,50 @@ async function main() {
 	if (!host) throw new Error('No host specified')
 	if (!ip) throw new Error('No IP specified')
 
-	console.log(await skipdns(host, ip, values.timeout, values.port))
+	const port = parseInt(values.port, 10)
+	const timeout = parseInt(values.timeout, 10) * 1000
+	const family = parseInt(values.family, 10)
+	const method = values.method
+
+	console.log(await skipdns({
+		url: `https://${host}`,
+		ip,
+		port,
+		timeout,
+		family,
+		method
+	}))
 }
 
-async function skipdns(host, ip, timeout, port) {
-	return (await runSilently('curl', [
-		'-so', '/dev/null',
-		'--max-time', timeout,
-		'--head',
-		'--write-out', '%{http_code}',
-		'--resolve', `${host}:${port}:${ip}`,
-		`https://${host}`
-	])).stdout
+export function skipdns({
+	url,
+	ip,
+	port = PORT,
+	family = FAMILY,
+	method = METHOD,
+	timeout = TIMEOUT_SEC * 1000
+}) {
+	return new Promise((resolve, reject) => {
+		const req = request(url, {
+				method,
+				timeout,
+				port,
+				lookup(_, options, resolveDNS) {
+					resolveDNS(null, [{ address: ip, family }])
+				}
+			},
+			response => {
+				resolve(response.statusCode)
+			}
+		)
+		req.on('error', reject)
+		req.on('timeout', () => req.destroy())
+		req.end()
+	})
 }
 
-main().catch(err => {
-	console.error(err.message)
-	process.exit(1)
-})
+if (import.meta.main)
+	main().catch(err => {
+		console.error(err.message)
+		process.exit(1)
+	})

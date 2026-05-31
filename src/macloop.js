@@ -50,7 +50,7 @@ async function main() {
 	console.log(`Saved: ${f}\nPlease reboot`)
 }
 
-function macloop(label, addr) {
+export function macloop(label, addr) {
 	return `<?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
@@ -73,8 +73,9 @@ function macloop(label, addr) {
 `
 }
 
-main().catch(err => {
-	console.error(err.message)
-	process.exit(1)
-})
+if (import.meta.main)
+	main().catch(err => {
+		console.error(err.message)
+		process.exit(1)
+	})
 

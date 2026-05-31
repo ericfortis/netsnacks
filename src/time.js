@@ -3,6 +3,8 @@ import { parseArgs } from 'node:util'
 import { runSilently } from './utils/subprocess.js'
 
 
+const HTTP_VERSION = 2
+
 const HELP = `
 SYNOPSIS
   netsnacks time [options] <url>
@@ -13,23 +15,18 @@ DESCRIPTION
   time, time to first byte, and total transfer time.
 
 OPTIONS
-  --h1          Use HTTP/1.1
-  --h2          Use HTTP/2 (default)
-  --h3          Use HTTP/3
-  -j, --json    Output JSON instead of a table
-  -h, --help
+  --http-version <1|2|3>  Default: ${HTTP_VERSION}
+  -j, --json              Output JSON instead of a table
 
 EXAMPLE
-  netsnacks time -h3 https://example.com
+  netsnacks time -H3 https://example.com
 `.trim()
 
 
 async function main() {
 	const { values, positionals } = parseArgs({
 		options: {
-			h1: { type: 'boolean' },
-			h2: { type: 'boolean' },
-			h3: { type: 'boolean' },
+			'http-version': { short: 'H', type: 'string', default: HTTP_VERSION },
 			json: { short: 'j', type: 'boolean' },
 			help: { short: 'h', type: 'boolean' },
 		},
@@ -41,14 +38,15 @@ async function main() {
 		return
 	}
 
-	const { h1, h2, h3, json } = values
 	const url = positionals[0]
+	const httpVersion = Number(values['http-version'])
+
 	if (!url) throw new Error('No URL specified. See netsnacks time --help')
 	if (positionals.length > 1) throw new Error('Too many URLs')
-	if ([h1, h2, h3].filter(Boolean).length > 1) throw new Error('--h1, --h2, --h3 are mutually exclusive')
+	if (![1, 2, 3].includes(httpVersion)) throw new Error('Invalid --http-version')
 
-	const result = await time(url, values)
-	if (json)
+	const result = await time(url, httpVersion)
+	if (values.json)
 		console.log(JSON.stringify(result, null, 2))
 	else {
 		const { http_version, ...data } = result
@@ -57,10 +55,11 @@ async function main() {
 	}
 }
 
-async function time(url, opts = {}) {
-	let hFlag = '--http2'
-	if (opts.h1) hFlag = '--http1.1'
-	if (opts.h3) hFlag = '--http3'
+export async function time(url, httpVersion = HTTP_VERSION) {
+	let hFlag = HTTP_VERSION
+	if (httpVersion === 1) hFlag = '--http1.1'
+	if (httpVersion === 2) hFlag = '--http2'
+	if (httpVersion === 3) hFlag = '--http3'
 
 	const format = `{
   "http_version": "%{http_version}",
@@ -91,14 +90,14 @@ export function measureCurlTimings(timings) {
 
 	const res = {}
 	let prevNonZero = 0 // because tls_handshake=0 in non-https requests
-	for (const [k, v] of Object.entries(timings))
+	for (const [phase, v] of Object.entries(timings))
 		if (v === 0)
-			res[k] = {
+			res[phase] = {
 				time: 0,
 				cumulative: fmt(prevNonZero)
 			}
 		else {
-			res[k] = {
+			res[phase] = {
 				time: fmt(v - prevNonZero),
 				cumulative: fmt(v)
 			}
