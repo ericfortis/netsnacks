@@ -1,9 +1,8 @@
-#!/usr/bin/env node
 import { join, dirname } from 'node:path'
 import { isIPv4 } from 'node:net'
-import { parseArgs } from 'node:util'
 import { existsSync } from 'node:fs'
 import { mkdir, writeFile } from 'node:fs/promises'
+import { parseOptions } from './utils/parseOptions.js'
 
 // TODO allow IPv6 too?
 
@@ -19,13 +18,11 @@ EXAMPLE
 `.trim()
 
 
-async function main() {
-	const { values } = parseArgs({
-		options: {
-			label: { short: 'l', type: 'string' },
-			addr: { short: 'a', type: 'string' },
-			help: { short: 'h', type: 'boolean' },
-		},
+export default async function main() {
+	const { values } = parseOptions({
+		label: { short: 'l', type: 'string' },
+		addr: { short: 'a', type: 'string' },
+		help: { short: 'h', type: 'boolean' },
 	})
 
 	if (values.help) {
@@ -72,10 +69,3 @@ export function macloop(label, addr) {
 </plist>
 `
 }
-
-if (import.meta.main)
-	main().catch(err => {
-		console.error(err.message)
-		process.exit(1)
-	})
-

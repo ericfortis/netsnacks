@@ -1,9 +1,8 @@
-#!/usr/bin/env node
 import { join } from 'node:path'
-import { parseArgs } from 'node:util'
 import { existsSync } from 'node:fs'
 import { isIPv4, isIPv6 } from 'node:net'
 import { runSilently } from './utils/subprocess.js'
+import { parseOptions } from './utils/parseOptions.js'
 
 
 const HELP = `
@@ -30,14 +29,11 @@ INSTALL ON MACOS
 `.trim()
 
 
-async function main() {
-	const { values, positionals } = parseArgs({
-		options: {
-			alt: { type: 'string' },
-			'output-dir': { type: 'string' },
-			help: { short: 'h', type: 'boolean' },
-		},
-		allowPositionals: true
+export default async function main() {
+	const { values, positionals } = parseOptions({
+		alt: { type: 'string' },
+		'output-dir': { type: 'string' },
+		help: { short: 'h', type: 'boolean' },
 	})
 
 	if (values.help) {
@@ -107,9 +103,3 @@ subjectAltName = @alt_names
 ${altNames}
 `.trim()
 }
-
-if (import.meta.main)
-	main().catch(err => {
-		console.error(err.message)
-		process.exit(1)
-	})

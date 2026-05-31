@@ -1,6 +1,5 @@
-#!/usr/bin/env node
 import { request } from 'node:https'
-import { parseArgs } from 'node:util'
+import { parseOptions } from './utils/parseOptions.js'
 
 const PORT = 443
 const TIMEOUT_SEC = 2
@@ -25,16 +24,13 @@ EXAMPLE
 `.trim()
 
 
-async function main() {
-	const { values, positionals } = parseArgs({
-		options: {
-			timeout: { short: 't', default: String(TIMEOUT_SEC) },
-			family: { short: 'f', default: String(FAMILY) },
-			port: { short: 'p', default: String(PORT) },
-			method: { short: 'm', default: METHOD },
-			help: { short: 'h', type: 'boolean' },
-		},
-		allowPositionals: true
+export default async function main() {
+	const { values, positionals } = parseOptions({
+		timeout: { short: 't', default: String(TIMEOUT_SEC) },
+		family: { short: 'f', default: String(FAMILY) },
+		port: { short: 'p', default: String(PORT) },
+		method: { short: 'm', default: METHOD },
+		help: { short: 'h', type: 'boolean' },
 	})
 
 	if (values.help) {
@@ -87,9 +83,3 @@ export function skipdns({
 		req.end()
 	})
 }
-
-if (import.meta.main)
-	main().catch(err => {
-		console.error(err.message)
-		process.exit(1)
-	})

@@ -1,9 +1,8 @@
-#!/usr/bin/env node
 import fs from 'node:fs/promises'
 import { join, dirname } from 'node:path'
 import { homedir } from 'node:os'
-import { parseArgs } from 'node:util'
 import { runSilently } from './utils/subprocess.js'
+import { parseOptions } from './utils/parseOptions.js'
 
 const ROUNDS = 32
 
@@ -30,17 +29,15 @@ EXAMPLE
 `.trim()
 
 
-async function main() {
-	const { values } = parseArgs({
-		options: {
-			host: { short: 'H', type: 'string' },
-			addr: { short: 'a', type: 'string' },
-			user: { short: 'u', type: 'string', default: process.env.USER || '' },
-			port: { short: 'p', type: 'string', default: '22' },
-			rounds: { short: 'r', type: 'string', default: String(ROUNDS) },
-			passphrase: { short: 'P', type: 'string', default: '' },
-			help: { short: 'h', type: 'boolean' },
-		}
+export default async function main() {
+	const { values } = parseOptions({
+		host: { short: 'H', type: 'string' },
+		addr: { short: 'a', type: 'string' },
+		user: { short: 'u', type: 'string', default: process.env.USER || '' },
+		port: { short: 'p', type: 'string', default: '22' },
+		rounds: { short: 'r', type: 'string', default: String(ROUNDS) },
+		passphrase: { short: 'P', type: 'string', default: '' },
+		help: { short: 'h', type: 'boolean' },
 	})
 
 	if (values.help) {
@@ -83,10 +80,3 @@ User ${user}
 IdentityFile ${keyPath}
 `
 }
-
-
-if (import.meta.main)
-	main().catch(err => {
-		console.error(err.message)
-		process.exit(1)
-	})

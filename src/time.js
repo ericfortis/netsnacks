@@ -1,6 +1,5 @@
-#!/usr/bin/env node
-import { parseArgs } from 'node:util'
 import { runSilently } from './utils/subprocess.js'
+import { parseOptions } from './utils/parseOptions.js'
 
 
 const HTTP_VERSION = 2
@@ -23,14 +22,11 @@ EXAMPLE
 `.trim()
 
 
-async function main() {
-	const { values, positionals } = parseArgs({
-		options: {
-			'http-version': { short: 'H', type: 'string', default: HTTP_VERSION },
-			json: { short: 'j', type: 'boolean' },
-			help: { short: 'h', type: 'boolean' },
-		},
-		allowPositionals: true
+export default async function main() {
+	const { values, positionals } = parseOptions({
+		'http-version': { short: 'H', type: 'string', default: HTTP_VERSION },
+		json: { short: 'j', type: 'boolean' },
+		help: { short: 'h', type: 'boolean' },
 	})
 
 	if (values.help) {
@@ -105,10 +101,3 @@ export function measureCurlTimings(timings) {
 		}
 	return res
 }
-
-
-if (import.meta.main)
-	main().catch(err => {
-		console.error(err.message)
-		process.exit(1)
-	})

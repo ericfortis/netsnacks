@@ -1,18 +1,15 @@
 #!/usr/bin/env node
-
-import { join } from 'node:path'
 import { styleText } from 'node:util'
-import { spawn } from 'node:child_process'
 import pkgJSON from '../package.json' with { type: 'json' }
 
 
 const COMMANDS = {
-	time: ['time.js', 'Measures request response timings'],
-	certperiod: ['certperiod.js', 'Shows expiration date of a TLS cert'],
-	selftls: ['selftls.js', 'Creates a self-signed TLS certificate'],
-	macloop: ['macloop.js', 'Creates a persistent loopback interface on macOS'],
-	skipdns: ['skipdns.js', 'HEAD request to a TLS domain by its IP'],
-	sshkeygen: ['sshkeygen.js', 'Creates SSH key and its .config entry'],
+	time: ['./time.js', 'Measures request response timings'],
+	certperiod: ['./certperiod.js', 'Shows expiration date of a TLS cert'],
+	selftls: ['./selftls.js', 'Creates a self-signed TLS certificate'],
+	macloop: ['./macloop.js', 'Creates a persistent loopback interface on macOS'],
+	skipdns: ['./skipdns.js', 'HEAD request to a TLS domain by its IP'],
+	sshkeygen: ['./sshkeygen.js', 'Creates SSH key and its .config entry'],
 }
 
 export function commandsSummary() {
@@ -29,8 +26,8 @@ ${commandsSummary().map(([cmd, desc]) =>
 `.trim()
 
 
-function main() {
-	const [, , opt, ...args] = process.argv
+async function main() {
+	const [, , opt] = process.argv
 
 	if (opt === '-v' || opt === '--version') {
 		console.log(pkgJSON.version)
@@ -50,10 +47,11 @@ function main() {
 		process.exit(1)
 	}
 
-	const cmd = join(import.meta.dirname, COMMANDS[opt][0])
-	spawn(cmd, args, { stdio: 'inherit' })
-		.on('exit', process.exit)
+	(await import(COMMANDS[opt][0])).default()
 }
 
 if (import.meta.main)
-	main()
+	main().catch(err => {
+		console.error(err?.message || err)
+		process.exit(1)
+	})

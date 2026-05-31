@@ -1,6 +1,6 @@
-#!/usr/bin/env node
-import { parseEnv, parseArgs } from 'node:util'
+import { parseEnv } from 'node:util'
 import { runSilently } from './utils/subprocess.js'
+import { parseOptions } from './utils/parseOptions.js'
 
 
 const HELP = `
@@ -16,13 +16,10 @@ EXAMPLE
 `.trim()
 
 
-async function main() {
-	const { values, positionals } = parseArgs({
-		options: {
-			json: { short: 'j', type: 'boolean' },
-			help: { short: 'h', type: 'boolean' },
-		},
-		allowPositionals: true
+export default async function main() {
+	const { values, positionals } = parseOptions({
+		json: { short: 'j', type: 'boolean' },
+		help: { short: 'h', type: 'boolean' },
 	})
 
 	if (values.help) {
@@ -74,9 +71,3 @@ export function parseDates(cert) {
 function toDays(ms) {
 	return Math.round(ms / (24 * 60 * 60 * 1000))
 }
-
-if (import.meta.main)
-	main().catch(err => {
-		console.error(err.message)
-		process.exit(1)
-	})
