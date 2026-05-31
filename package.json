@@ -1,6 +1,6 @@
 {
   "name": "netsnacks",
-  "version": "0.0.3",
+  "version": "0.0.4",
   "description": "Utilities for analyzing web resources",
   "license": "MIT",
   "author": "Eric Fortis",
@@ -13,7 +13,13 @@
     "dev-install": "npm i -g . --ignore-scripts=false",
     "test": "node --test"
   },
-  "files": [
+	"exports": {
+		".": {
+			"import": "./index.js",
+			"types": "./index.d.ts"
+		}
+	},
+	"files": [
     "src",
     "install-zsh-completions.js",
 		"index.js",
