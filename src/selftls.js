@@ -14,7 +14,7 @@ DESCRIPTION
 
 OPTIONS
   --alt <domains>   Comma-separated Subject Alternative Names (SANs)
-  --outdir <dir> Output directory for files (defaults to current working directory)
+  --outdir <dir>    Output directory for files (defaults to current working directory)
 
 EXAMPLES
   netsnacks selftls localhost
@@ -94,5 +94,5 @@ subjectAltName = @alt_names
 
 [alt_names]
 ${altNames}
-`.trim()
+`
 }
