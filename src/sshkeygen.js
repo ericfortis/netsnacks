@@ -39,8 +39,8 @@ export default async function main() {
 	})
 
 	const { host, addr, port, user, passphrase, rounds } = values
-	if (!host) throw new Error('--host is required')
-	if (!addr) throw new Error('--addr is required')
+	if (!host) throw '--host is required'
+	if (!addr) throw '--addr is required'
 
 	const outPath = join(homedir(), '.ssh', host, 'id_ed25519')
 	const sshConfig = join(homedir(), '.ssh', 'config')

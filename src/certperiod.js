@@ -22,7 +22,7 @@ export default async function main() {
 	})
 
 	const domain = positionals[0]
-	if (!domain) throw new Error('No domain specified.')
+	if (!domain) throw 'No domain specified.'
 
 	const output = await certperiod(domain)
 	if (values.json)

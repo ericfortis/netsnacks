@@ -43,10 +43,10 @@ export default async function main() {
 		? values.alt.split(',').map(s => s.trim()).filter(Boolean)
 		: []
 
-	if (!domain) throw new Error('Missing domain. See: netsnacks selftls --help')
-	if (positionals.length > 1) throw new Error('Too many domains')
-	if (existsSync(keyFile)) throw new Error(`Found existing key: ${keyFile}`)
-	if (existsSync(certFile)) throw new Error(`Found existing cert: ${certFile}`)
+	if (!domain) throw 'Missing domain. See: netsnacks selftls --help'
+	if (positionals.length > 1) throw 'Too many domains'
+	if (existsSync(keyFile)) throw `Found existing key: ${keyFile}`
+	if (existsSync(certFile)) throw `Found existing cert: ${certFile}`
 
 	await selftls({ keyFile, certFile, domain, altNames })
 }

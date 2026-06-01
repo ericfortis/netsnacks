@@ -32,8 +32,8 @@ export default async function main() {
 	})
 
 	const [host, ip] = positionals
-	if (!host) throw new Error('No host specified')
-	if (!ip) throw new Error('No IP specified')
+	if (!host) throw 'No host specified'
+	if (!ip) throw 'No IP specified'
 
 	const port = parseInt(values.port, 10)
 	const timeout = parseInt(values.timeout, 10) * 1000

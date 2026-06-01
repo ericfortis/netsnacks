@@ -27,13 +27,13 @@ export default async function main() {
 	const id = 'com.netsnacks.macloop.loopback.' + label
 	const f = join('/Library/LaunchDaemons', id) + '.plist'
 
-	if (process.platform !== 'darwin') throw new Error('This command is for macOS')
-	if (process.getuid?.() !== 0) throw new Error('This command must be run as root')
-	if (!label) throw new Error('Missing --label')
-	if (!addr) throw new Error('Missing --addr')
-	if (!isIPv4(addr)) throw new Error('--addr must be IPv4')
-	if (!addr.startsWith('127.')) throw new Error('--addr must be in the loopback range (127.x.x.x)')
-	if (existsSync(f)) throw new Error(`Found existing: ${f}`)
+	if (process.platform !== 'darwin') throw 'This command is for macOS'
+	if (process.getuid?.() !== 0) throw 'This command must be run as root'
+	if (!label) throw 'Missing --label'
+	if (!addr) throw 'Missing --addr'
+	if (!isIPv4(addr)) throw '--addr must be IPv4'
+	if (!addr.startsWith('127.')) throw '--addr must be in the loopback range (127.x.x.x)'
+	if (existsSync(f)) throw `Found existing: ${f}`
 
 	await mkdir(dirname(f), { recursive: true })
 	await writeFile(f, macloop(id, addr))

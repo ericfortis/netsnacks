@@ -30,9 +30,9 @@ export default async function main() {
 	const url = positionals[0]
 	const httpVersion = Number(values['http-version'])
 
-	if (!url) throw new Error('No URL specified. See netsnacks time --help')
-	if (positionals.length > 1) throw new Error('Too many URLs')
-	if (![1, 2, 3].includes(httpVersion)) throw new Error('Invalid --http-version')
+	if (!url) throw 'No URL specified.'
+	if (positionals.length > 1) throw 'Too many URLs'
+	if (![1, 2, 3].includes(httpVersion)) throw 'Invalid --http-version'
 
 	const result = await time(url, httpVersion)
 	if (values.json)
