@@ -15,20 +15,13 @@ DESCRIPTION
 
 EXAMPLE
 	sudo netsnacks macloop --label alias1  --addr 127.2.2.2
-`.trim()
-
+`
 
 export default async function main() {
-	const { values } = parseOptions({
+	const { values } = parseOptions(HELP, {
 		label: { short: 'l', type: 'string' },
 		addr: { short: 'a', type: 'string' },
-		help: { short: 'h', type: 'boolean' },
 	})
-
-	if (values.help) {
-		console.log(HELP)
-		return
-	}
 
 	const { label, addr } = values
 	const id = 'com.netsnacks.macloop.loopback.' + label

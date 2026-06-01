@@ -26,20 +26,13 @@ INSTALL ON MACOS
   - Drop the generated *.cert file onto the "login" keychains section
   - Double-click that newly added cert item
   - Expand "Trust" > SSL > Select "Always Trust"
-`.trim()
-
+`
 
 export default async function main() {
-	const { values, positionals } = parseOptions({
+	const { values, positionals } = parseOptions(HELP, {
 		alt: { type: 'string' },
 		outdir: { type: 'string' },
-		help: { short: 'h', type: 'boolean' },
 	})
-
-	if (values.help) {
-		console.log(HELP)
-		return
-	}
 
 	const domain = positionals[0]
 	const dir = values.outdir || '.'

@@ -26,24 +26,17 @@ EXAMPLE
     -p 2233 \\
     -u john \\
     -P "mypassphrase"
-`.trim()
-
+`
 
 export default async function main() {
-	const { values } = parseOptions({
+	const { values } = parseOptions(HELP, {
 		host: { short: 'H', type: 'string' },
 		addr: { short: 'a', type: 'string' },
 		user: { short: 'u', type: 'string', default: process.env.USER || '' },
 		port: { short: 'p', type: 'string', default: '22' },
 		rounds: { short: 'r', type: 'string', default: String(ROUNDS) },
 		passphrase: { short: 'P', type: 'string', default: '' },
-		help: { short: 'h', type: 'boolean' },
 	})
-
-	if (values.help) {
-		console.log(HELP)
-		return
-	}
 
 	const { host, addr, port, user, passphrase, rounds } = values
 	if (!host) throw new Error('--host is required')

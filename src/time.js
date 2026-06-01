@@ -19,20 +19,13 @@ OPTIONS
 
 EXAMPLE
   netsnacks time -H3 https://example.com
-`.trim()
-
+`
 
 export default async function main() {
-	const { values, positionals } = parseOptions({
-		'http-version': { short: 'H', type: 'string', default: HTTP_VERSION },
+	const { values, positionals } = parseOptions(HELP, {
+		'http-version': { short: 'H', type: 'string', default: String(HTTP_VERSION) },
 		json: { short: 'j', type: 'boolean' },
-		help: { short: 'h', type: 'boolean' },
 	})
-
-	if (values.help) {
-		console.log(HELP)
-		return
-	}
 
 	const url = positionals[0]
 	const httpVersion = Number(values['http-version'])

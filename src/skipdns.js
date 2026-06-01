@@ -21,22 +21,15 @@ OPTIONS
 
 EXAMPLE
   netsnacks skipdns example.com 192.0.2.2
-`.trim()
-
+`
 
 export default async function main() {
-	const { values, positionals } = parseOptions({
+	const { values, positionals } = parseOptions(HELP, {
 		timeout: { short: 't', default: String(TIMEOUT_SEC) },
 		family: { short: 'f', default: String(FAMILY) },
 		port: { short: 'p', default: String(PORT) },
 		method: { short: 'm', default: METHOD },
-		help: { short: 'h', type: 'boolean' },
 	})
-
-	if (values.help) {
-		console.log(HELP)
-		return
-	}
 
 	const [host, ip] = positionals
 	if (!host) throw new Error('No host specified')

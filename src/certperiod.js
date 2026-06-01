@@ -13,19 +13,13 @@ DESCRIPTION
 
 EXAMPLE
   netsnacks certperiod example.com
-`.trim()
+`
 
 
 export default async function main() {
-	const { values, positionals } = parseOptions({
+	const { values, positionals } = parseOptions(HELP, {
 		json: { short: 'j', type: 'boolean' },
-		help: { short: 'h', type: 'boolean' },
 	})
-
-	if (values.help) {
-		console.log(HELP)
-		return
-	}
 
 	const domain = positionals[0]
 	if (!domain) throw new Error('No domain specified.')
