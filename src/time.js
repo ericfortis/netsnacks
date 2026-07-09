@@ -26,12 +26,12 @@ EXAMPLE
 
 export default async function main() {
 	const { values, positionals } = parseOptions(HELP, {
-		h1: { type: 'boolean' },
-		h2: { type: 'boolean' },
-		h3: { type: 'boolean' },
-		4: { type: 'boolean' },
-		6: { type: 'boolean' },
-		json: { short: 'j', type: 'boolean' },
+		h1: { type: 'boolean', default: false },
+		h2: { type: 'boolean', default: false },
+		h3: { type: 'boolean', default: false },
+		4: { type: 'boolean', default: false },
+		6: { type: 'boolean', default: false },
+		json: { type: 'boolean', default: false, short: 'j' },
 	})
 
 	const url = positionals[0]
