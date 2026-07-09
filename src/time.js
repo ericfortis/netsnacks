@@ -2,8 +2,6 @@ import { runSilently } from './utils/subprocess.js'
 import { parseOptions } from './utils/parseOptions.js'
 
 
-const HTTP_VERSION = 2
-
 const HELP = `
 
 SYNOPSIS
@@ -15,43 +13,65 @@ DESCRIPTION
   time, time to first byte, and total transfer time.
 
 OPTIONS
-  -H, --http-version <1|2|3>  Default: ${HTTP_VERSION}
-  -j, --json              Output JSON instead of a table
+  -4          IPv4
+  -6          IPv6
+  --h1        HTTP/1.1
+  --h2        HTTP/2
+  --h3        HTTP/3
+  -j, --json  Output JSON instead of a table
 
 EXAMPLE
-  netsnacks time -H3 https://example.com
+  netsnacks time -6 --h2 https://example.com
 `
 
 export default async function main() {
 	const { values, positionals } = parseOptions(HELP, {
-		'http-version': { short: 'H', type: 'string', default: String(HTTP_VERSION) },
+		h1: { type: 'boolean' },
+		h2: { type: 'boolean' },
+		h3: { type: 'boolean' },
+		4: { type: 'boolean' },
+		6: { type: 'boolean' },
 		json: { short: 'j', type: 'boolean' },
 	})
 
 	const url = positionals[0]
-	const httpVersion = Number(values['http-version'])
-
 	if (!url) throw 'No URL specified' + HELP
 	if (positionals.length > 1) throw 'Too many URLs' + HELP
-	if (![1, 2, 3].includes(httpVersion)) throw 'Invalid --http-version' + HELP
+	if (values['4'] && values['6']) throw 'Cannot use both -4 and -6' + HELP
+	if ((values.h1 + values.h2 + values.h3) > 1) throw 'Cannot use more than one of -h1, -h2, -h3' + HELP
 
-	const result = await time(url, httpVersion)
+	let httpVersion = ''
+	if (values.h1) httpVersion = 1
+	if (values.h2) httpVersion = 2
+	if (values.h3) httpVersion = 3
+
+	let ipVersion = ''
+	if (values['4']) ipVersion = 4
+	if (values['6']) ipVersion = 6
+
+	const result = await time(url, httpVersion, ipVersion)
 	if (values.json)
 		console.log(JSON.stringify(result, null, 2))
 	else {
-		const { http_version, ...data } = result
-		console.log(`http_version: ${http_version}`)
+		const { ip, http_version, status, ...data } = result
+		console.table({ ip, status, http_version })
 		console.table(data)
 	}
 }
 
-export async function time(url, httpVersion = HTTP_VERSION) {
-	let hFlag = HTTP_VERSION
+export async function time(url, httpVersion, ipVersion) {
+	let hFlag = ''
 	if (httpVersion === 1) hFlag = '--http1.1'
 	if (httpVersion === 2) hFlag = '--http2'
 	if (httpVersion === 3) hFlag = '--http3-only'
 
+	let ipFlag = ''
+	if (ipVersion === 4) ipFlag = '-4'
+	if (ipVersion === 6) ipFlag = '-6'
+
 	const format = `{
+  "ip": "%{remote_ip}",
+  "status": %{http_code},
   "http_version": "%{http_version}",
   "dns_lookup": %{time_namelookup},
   "tcp_handshake": %{time_connect},
@@ -65,11 +85,14 @@ export async function time(url, httpVersion = HTTP_VERSION) {
 		'-so', '/dev/null',
 		'--show-error',
 		'-w', format,
-		hFlag,
+		hFlag || [],
+		ipFlag || [],
 		url
-	]))
-	const { http_version, ...cumulative } = JSON.parse(stdout)
+	].flat()))
+	const { ip, http_version, status, ...cumulative } = JSON.parse(stdout)
 	return {
+		ip,
+		status,
 		http_version,
 		...measureCurlTimings(cumulative)
 	}
