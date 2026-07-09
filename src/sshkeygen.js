@@ -7,6 +7,7 @@ import { parseOptions } from './utils/parseOptions.js'
 const ROUNDS = 32
 
 const HELP = `
+
 SYNOPSIS
   netsnacks sshkeygen {-H | --host} <host> \\
                       {-a | --addr} <addr> \\
@@ -39,8 +40,8 @@ export default async function main() {
 	})
 
 	const { host, addr, port, user, passphrase, rounds } = values
-	if (!host) throw '--host is required'
-	if (!addr) throw '--addr is required'
+	if (!host) throw '--host is required' + HELP
+	if (!addr) throw '--addr is required' + HELP
 
 	const outPath = join(homedir(), '.ssh', host, 'id_ed25519')
 	const sshConfig = join(homedir(), '.ssh', 'config')

@@ -4,6 +4,7 @@ import { parseOptions } from './utils/parseOptions.js'
 
 
 const HELP = `
+
 SYNOPSIS
   netsnacks certperiod [-j | --json] <domain>
 
@@ -22,7 +23,7 @@ export default async function main() {
 	})
 
 	const domain = positionals[0]
-	if (!domain) throw 'No domain specified.'
+	if (!domain) throw 'No domain specified.' + HELP
 
 	const output = await certperiod(domain)
 	if (values.json)

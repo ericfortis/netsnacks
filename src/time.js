@@ -5,6 +5,7 @@ import { parseOptions } from './utils/parseOptions.js'
 const HTTP_VERSION = 2
 
 const HELP = `
+
 SYNOPSIS
   netsnacks time [options] <url>
 
@@ -14,7 +15,7 @@ DESCRIPTION
   time, time to first byte, and total transfer time.
 
 OPTIONS
-  --http-version <1|2|3>  Default: ${HTTP_VERSION}
+  -H, --http-version <1|2|3>  Default: ${HTTP_VERSION}
   -j, --json              Output JSON instead of a table
 
 EXAMPLE
@@ -30,9 +31,9 @@ export default async function main() {
 	const url = positionals[0]
 	const httpVersion = Number(values['http-version'])
 
-	if (!url) throw 'No URL specified.'
-	if (positionals.length > 1) throw 'Too many URLs'
-	if (![1, 2, 3].includes(httpVersion)) throw 'Invalid --http-version'
+	if (!url) throw 'No URL specified' + HELP
+	if (positionals.length > 1) throw 'Too many URLs' + HELP
+	if (![1, 2, 3].includes(httpVersion)) throw 'Invalid --http-version' + HELP
 
 	const result = await time(url, httpVersion)
 	if (values.json)
