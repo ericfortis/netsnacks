@@ -48,7 +48,7 @@ export async function time(url, httpVersion = HTTP_VERSION) {
 	let hFlag = HTTP_VERSION
 	if (httpVersion === 1) hFlag = '--http1.1'
 	if (httpVersion === 2) hFlag = '--http2'
-	if (httpVersion === 3) hFlag = '--http3'
+	if (httpVersion === 3) hFlag = '--http3-only'
 
 	const format = `{
   "http_version": "%{http_version}",
@@ -87,7 +87,7 @@ export function measureCurlTimings(timings) {
 			}
 		else {
 			res[phase] = {
-				time: fmt(v - prevNonZero),
+				time: fmt(Math.max(0, v - prevNonZero)),
 				cumulative: fmt(v)
 			}
 			prevNonZero = v
