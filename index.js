@@ -1,4 +1,5 @@
 export { certperiod } from './src/certperiod.js'
+export { dump } from './src/dump.js'
 export { macloop } from './src/macloop.js'
 export { selftls } from './src/selftls.js'
 export { skipdns } from './src/skipdns.js'

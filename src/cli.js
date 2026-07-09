@@ -5,6 +5,7 @@ import pkgJSON from '../package.json' with { type: 'json' }
 
 const COMMANDS = {
 	time: ['./time.js', 'Measures request response timings'],
+	dump: ['./dump.js', 'Lets you analyze encrypted requests in clear text in Wireshark'],
 	certperiod: ['./certperiod.js', 'Shows expiration date of a TLS cert'],
 	selftls: ['./selftls.js', 'Creates a self-signed TLS certificate'],
 	macloop: ['./macloop.js', 'Creates a persistent loopback interface on macOS'],

@@ -19,6 +19,7 @@ netsnacks <command> <args>
 
 ### Commands
 - `time`: Measures request response timings (DNS lookup, TCP/TLS handshakes, etc.)
+- `dump`: Lets you analyze encrypted requests in clear text in Wireshark
 - `certperiod`: Shows expiration date and validity of a TLS certificate
 - `selftls`: Creates a self-signed TLS certificate
 - `macloop`: Creates a persistent loopback interface on macOS

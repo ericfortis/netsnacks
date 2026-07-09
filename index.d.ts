@@ -41,8 +41,8 @@ export interface TimeResult {
 	first_byte: TimingPhase
 	download: TimingPhase
 }
-export function time(url: string, httpVersion: 1 | 2 | 3): Promise<TimeResult>
-
+export function time(url: string, httpVersion?: 1 | 2 | 3, ipVersion?: 4 | 6): Promise<TimeResult>
+export function dump(url: string, httpVersion?: 1 | 2 | 3, ipVersion?: 4 | 6, interface?: string): Promise<string>
 
 export interface SshKeygenOptions {
 	outPath: string
@@ -52,3 +52,4 @@ export interface SshKeygenOptions {
 export function sshkeygen(options: SshKeygenOptions): Promise<void>
 
 export function macloop(label: string, addr: string): string
+

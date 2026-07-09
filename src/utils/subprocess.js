@@ -1,12 +1,12 @@
 import { spawn } from 'node:child_process'
 
 
-export async function runSilently(program, args, input) {
+export async function runSilently(program, args, input, env) {
 	return new Promise((resolve, reject) => {
 		const stdout = []
 		const stderr = []
 
-		const p = spawn(program, args)
+		const p = spawn(program, args, env ? { env: { ...process.env, ...env } } : undefined)
 
 		if (input !== undefined) {
 			p.stdin.write(input)
