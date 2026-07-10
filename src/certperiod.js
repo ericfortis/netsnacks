@@ -4,8 +4,7 @@ import { parseOptions } from './utils/parseOptions.js'
 
 
 const HELP = `
-
-SYNOPSIS
+USAGE
   netsnacks certperiod [-j | --json] <domain>
 
 DESCRIPTION
@@ -16,14 +15,13 @@ EXAMPLE
   netsnacks certperiod example.com
 `
 
-
 export default async function main() {
-	const { values, positionals } = parseOptions(HELP, {
+	const { values, positionals, usage } = parseOptions(HELP, {
 		json: { short: 'j', type: 'boolean' },
 	})
 
 	const domain = positionals[0]
-	if (!domain) throw 'No domain specified.' + HELP
+	if (!domain) throw usage('No domain specified')
 
 	const output = await certperiod(domain)
 	if (values.json)

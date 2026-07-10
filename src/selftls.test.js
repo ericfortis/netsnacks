@@ -2,7 +2,8 @@ import { ok } from 'node:assert/strict'
 import { test } from 'node:test'
 import { join } from 'node:path'
 import { existsSync } from 'node:fs'
-import { mkTempDir, cli } from './utils/test-utils.js'
+import { cli } from './utils/test-utils.js'
+import { mkTempDir } from './utils/fs.js'
 
 test('selftls', () => {
 	const tmp = mkTempDir('netsnacks-selftls-')

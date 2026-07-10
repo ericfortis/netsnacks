@@ -6,7 +6,9 @@ export async function runSilently(program, args, input, env) {
 		const stdout = []
 		const stderr = []
 
-		const p = spawn(program, args, env ? { env: { ...process.env, ...env } } : undefined)
+		const p = spawn(program, args, env
+			? { env: { ...process.env, ...env } }
+			: undefined)
 
 		if (input !== undefined) {
 			p.stdin.write(input)

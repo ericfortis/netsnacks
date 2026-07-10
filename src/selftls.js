@@ -6,8 +6,7 @@ import { parseOptions } from './utils/parseOptions.js'
 
 
 const HELP = `
-
-SYNOPSIS
+USAGE
   netsnacks selftls [options] <domain>
 
 DESCRIPTION
@@ -30,7 +29,7 @@ INSTALL ON MACOS
 `
 
 export default async function main() {
-	const { values, positionals } = parseOptions(HELP, {
+	const { values, positionals, usage } = parseOptions(HELP, {
 		alt: { type: 'string' },
 		outdir: { type: 'string' },
 	})
@@ -44,10 +43,10 @@ export default async function main() {
 		? values.alt.split(',').map(s => s.trim()).filter(Boolean)
 		: []
 
-	if (!domain) throw 'Missing domain. See: netsnacks selftls --help' + HELP
-	if (positionals.length > 1) throw 'Too many domains' + HELP
-	if (existsSync(keyFile)) throw `Found existing key: ${keyFile}` + HELP
-	if (existsSync(certFile)) throw `Found existing cert: ${certFile}` + HELP
+	if (!domain) throw usage('Missing domain. See: netsnacks selftls --help')
+	if (positionals.length > 1) throw usage('Too many domains')
+	if (existsSync(keyFile)) throw usage(`Found existing key: ${keyFile}`)
+	if (existsSync(certFile)) throw usage(`Found existing cert: ${certFile}`)
 
 	await selftls({ keyFile, certFile, domain, altNames })
 }

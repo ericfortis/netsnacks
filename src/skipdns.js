@@ -7,8 +7,7 @@ const FAMILY = 4
 const METHOD = 'HEAD'
 
 const HELP = `
-
-SYNOPSIS
+USAGE
   netsnacks skipdns [options] <host> <ip>
 
 DESCRIPTION
@@ -25,7 +24,7 @@ EXAMPLE
 `
 
 export default async function main() {
-	const { values, positionals } = parseOptions(HELP, {
+	const { values, positionals, usage } = parseOptions(HELP, {
 		timeout: { short: 't', default: String(TIMEOUT_SEC) },
 		family: { short: 'f', default: String(FAMILY) },
 		port: { short: 'p', default: String(PORT) },
@@ -33,8 +32,8 @@ export default async function main() {
 	})
 
 	const [host, ip] = positionals
-	if (!host) throw 'No host specified' + HELP
-	if (!ip) throw 'No IP specified' + HELP
+	if (!host) throw usage('No host specified')
+	if (!ip) throw usage('No IP specified')
 
 	const port = parseInt(values.port, 10)
 	const timeout = parseInt(values.timeout, 10) * 1000

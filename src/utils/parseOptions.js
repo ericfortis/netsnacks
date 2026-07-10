@@ -1,4 +1,5 @@
 import { parseArgs } from 'node:util'
+import { styleText } from 'node:util'
 
 /**
  * @param {string} helpText
@@ -11,6 +12,7 @@ export function parseOptions(helpText, options = {}, config = {}) {
 	const { values, positionals } = parseArgs({
 		args: process.argv.slice(3),
 		allowPositionals: true,
+		allowNegative: true,
 		options,
 		...config,
 	})
@@ -20,5 +22,11 @@ export function parseOptions(helpText, options = {}, config = {}) {
 		process.exit(0)
 	}
 
-	return { values, positionals }
+	return {
+		values,
+		positionals,
+		usage: err => err
+			? styleText('redBright', '' + err + '\n') + helpText
+			: helpText
+	}
 }

@@ -7,8 +7,7 @@ import { parseOptions } from './utils/parseOptions.js'
 // TODO allow IPv6 too?
 
 const HELP = `
-
-SYNOPSIS
+USAGE
 	sudo netsnacks macloop --label <name> --addr <ip>
 
 DESCRIPTION
@@ -19,7 +18,7 @@ EXAMPLE
 `
 
 export default async function main() {
-	const { values } = parseOptions(HELP, {
+	const { values, usage } = parseOptions(HELP, {
 		label: { short: 'l', type: 'string' },
 		addr: { short: 'a', type: 'string' },
 	})
@@ -28,13 +27,13 @@ export default async function main() {
 	const id = 'com.netsnacks.macloop.loopback.' + label
 	const f = join('/Library/LaunchDaemons', id) + '.plist'
 
-	if (process.platform !== 'darwin') throw 'This command is for macOS' + HELP
-	if (process.getuid?.() !== 0) throw 'This command must be run as root' + HELP
-	if (!label) throw 'Missing --label' + HELP
-	if (!addr) throw 'Missing --addr' + HELP
-	if (!isIPv4(addr)) throw '--addr must be IPv4' + HELP
-	if (!addr.startsWith('127.')) throw '--addr must be in the loopback range (127.x.x.x)' + HELP
-	if (existsSync(f)) throw `Found existing: ${f}` + HELP
+	if (process.platform !== 'darwin') throw usage('This command is for macOS')
+	if (process.getuid?.() !== 0) throw usage('This command must be run as root')
+	if (!label) throw usage('Missing --label')
+	if (!addr) throw usage('Missing --addr')
+	if (!isIPv4(addr)) throw usage('--addr must be IPv4')
+	if (!addr.startsWith('127.')) throw usage('--addr must be in the loopback range (127.x.x.x)')
+	if (existsSync(f)) throw usage(`Found existing: ${f}`)
 
 	await mkdir(dirname(f), { recursive: true })
 	await writeFile(f, macloop(id, addr))
