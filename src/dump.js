@@ -5,14 +5,20 @@ import { mkTempDir, openFileExplorer } from './utils/fs.js'
 import { runSilently } from './utils/subprocess.js'
 import { parseOptions } from './utils/parseOptions.js'
 
+const rel = f => join(import.meta.dirname, f)
 
-const INTERFACE = 'en0'
+const INTERFACE = (await runSilently(rel('./utils/default-if'))).stdout
 const F_DUMP = 'dump.pcap'
 const F_SSLKEY = 'sslkey.log'
 
 const HELP = `
 USAGE
-  netsnacks dump [-i interface] [-4 | -6] [--h1 | --h2 | --h3] [-H <header>]... [--no-open] <url>
+  netsnacks dump [-i interface] \
+                 [-4 | -6] \
+                 [--h1 | --h2 | --h3] \
+  	             [-H <header>]... \
+  	             [--no-open] \
+  	             <url>
 
 DESCRIPTION
   Lets you analyze encrypted requests in clear text in Wireshark.
@@ -65,8 +71,7 @@ export default async function main() {
 	if (values.h3) httpVersion = 3
 
 	const dir = await dump(url, httpVersion, ipVersion, values.interface, values.header)
-	console.log('Saved in:')
-	console.log(dir)
+	console.log(`Saved in:\n${dir}`)
 
 	const analyzer = writeWiresharkOpenerScript(dir)
 	if (values.open && process.platform === 'darwin') {

@@ -1,7 +1,7 @@
 import { spawn } from 'node:child_process'
 
 
-export async function runSilently(program, args, input, env) {
+export async function runSilently(program, args = [], input, env) {
 	return new Promise((resolve, reject) => {
 		const stdout = []
 		const stderr = []

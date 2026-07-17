@@ -1,0 +1,16 @@
+#!/bin/sh
+
+case $(uname) in
+	Darwin)
+		net_if=$(route get default | awk '/interface:/{print $NF}') ;;
+	Linux)
+ 		net_if=$(route -n | awk '/^0.0.0.0/{print $NF}') ;;
+	OpenBSD)
+ 		net_if=$(route -n show -inet -gateway | awk '/^default/{print $NF}') ;;
+  *)
+   	net_if=""
+esac
+
+printf "%s" $net_if
+
+
