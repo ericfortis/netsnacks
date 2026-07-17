@@ -43,7 +43,7 @@ export interface TimeResult {
 }
 export function time(url: string, httpVersion?: 1 | 2 | 3, ipVersion?: 4 | 6): Promise<TimeResult>
 
-export function dump(url: string, httpVersion?: 1 | 2 | 3, ipVersion?: 4 | 6, iface?: string): Promise<string>
+export function dump(url: string, httpVersion?: 1 | 2 | 3, ipVersion?: 4 | 6, iface?: string, headers?: string[]): Promise<string>
 
 export interface SshKeygenOptions {
 	outPath: string

@@ -12,7 +12,7 @@ const F_SSLKEY = 'sslkey.log'
 
 const HELP = `
 USAGE
-  netsnacks dump [-i interface] [-4 | -6] [--h1 | --h2 | --h3] [--no-open] <url>
+  netsnacks dump [-i interface] [-4 | -6] [--h1 | --h2 | --h3] [-H <header>]... [--no-open] <url>
 
 DESCRIPTION
   Lets you analyze encrypted requests in clear text in Wireshark.
@@ -40,6 +40,7 @@ EXAMPLE
 export default async function main() {
 	const { values, positionals, usage } = parseOptions(HELP, {
 		interface: { short: 'i', type: 'string', default: INTERFACE },
+		header: { short: 'H', type: 'string', multiple: true },
 		h1: { type: 'boolean', default: false },
 		h2: { type: 'boolean', default: false },
 		h3: { type: 'boolean', default: false },
@@ -63,7 +64,7 @@ export default async function main() {
 	if (values.h2) httpVersion = 2
 	if (values.h3) httpVersion = 3
 
-	const dir = await dump(url, httpVersion, ipVersion, values.interface)
+	const dir = await dump(url, httpVersion, ipVersion, values.interface, values.header)
 	console.log('Saved in:')
 	console.log(dir)
 
@@ -74,7 +75,7 @@ export default async function main() {
 	}
 }
 
-export async function dump(url, httpVersion = -1, ipVersion = -1, iface = INTERFACE) {
+export async function dump(url, httpVersion = -1, ipVersion = -1, iface = INTERFACE, headers = []) {
 	const dir = mkTempDir('netsnacks-dump-')
 	const pcapFile = join(dir, F_DUMP)
 	const keylogFile = join(dir, F_SSLKEY)
@@ -109,6 +110,7 @@ export async function dump(url, httpVersion = -1, ipVersion = -1, iface = INTERF
 		'--show-error',
 		hFlag || [],
 		ipFlag || [],
+		...headers.map(h => ['-H', h]),
 		url
 	].flat(), undefined, { SSLKEYLOGFILE: keylogFile })
 
